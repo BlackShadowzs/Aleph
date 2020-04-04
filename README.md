@@ -1,5 +1,8 @@
 
 # Aleph
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a6790b29eb04491280b858a55dc1357f)](https://www.codacy.com/gh/Aleph-Discord-Bot/Aleph?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Aleph-Discord-Bot/Aleph&amp;utm_campaign=Badge_Grade) [![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](http://perso.crans.org/besson/LICENSE.html) [![Open Source Love svg1](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
+
+
 
 An open-source Discord bot, written in Java & Kotlin (JDA)
 
