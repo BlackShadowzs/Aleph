@@ -1,8 +1,6 @@
 
 # Aleph
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3da2ca7afdd940818442e9b1cf200600)](https://app.codacy.com/gh/Aleph-Discord-Bot/Aleph?utm_source=github.com&utm_medium=referral&utm_content=Aleph-Discord-Bot/Aleph&utm_campaign=Badge_Grade_Dashboard)
-
 An open-source Discord bot, written in Java & Kotlin (JDA)
 
 ## Stealing the code
