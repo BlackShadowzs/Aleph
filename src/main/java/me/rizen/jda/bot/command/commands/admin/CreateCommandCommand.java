@@ -23,6 +23,8 @@ import me.rizen.jda.bot.CommandManager;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -56,39 +58,41 @@ public class CreateCommandCommand implements ICommand {
 
     @Override
     public void handle(CommandContext ctx) {
-           Firestore database = getDatabase();
-            TextChannel channel = ctx.getChannel();
-            Member member = ctx.getMember();
-            Guild guild = ctx.getGuild();
-            List<String> args = ctx.getArgs();
-            try {
+           final Firestore database = getDatabase();
+            final TextChannel channel = ctx.getChannel();
+            final Member member = ctx.getMember();
+            final Guild guild = ctx.getGuild();
+            final List<String> args = ctx.getArgs();
+            final Language language = ctx.getGuildLanguage();
+
+        try {
             if (!member.hasPermission(Permission.MANAGE_SERVER)) {
-                sendMessage(channel, "You must have the `MANAGE_SERVER` permission to run this.");
+                sendMessage(channel, language.MEMBER_MISSING_PERMISSIONS()+" (*MANAGE_SERVER*)");
                 return;
             }
             if (args.size() < 1) {
-                sendMessage(channel, getHelp());
+                sendMessage(channel, getHelp(ctx.getGuild().getId()));
                 return;
             }
             if (database.collection(guild.getId()).document(args.get(0).toLowerCase()+"Command").get().get().exists()) {
-                sendMessage(channel, "This command already exists");
+                sendMessage(channel, language.CUSTOM_COMMAND_ALREADY_EXISTS());
                 return;
             }
             if (commandExists(args.get(0))) {
-                sendMessage(channel, "This command already exists");
+                sendMessage(channel, language.CUSTOM_COMMAND_ALREADY_EXISTS());
                 return;
             }
             String message = args.subList(1, args.size()).toString().replace("[", "").replace("]", "").replace(",", "");
-            createCustomCommand(guild.getId(), args.get(0).toLowerCase(), message, "No help was provided for this command.\nTo add info to this command do "+getPrefix(guild.getId())+"sethelp <Command Name> <What Command Does>");
-            sendMessage(channel,"Successfully created command: `"+args.get(0)+"`");
+            createCustomCommand(guild.getId(), args.get(0).toLowerCase(), message, GuildLanguage.GuildLanguage.get(guild.getId()).DEFAULT_CUSTOM_COMMAND_HELP().replace("REPLACE", getPrefix(guild.getId())));
+            sendMessage(channel,language.SUCCESS_CREATE_COMMAND().replace("REPLACE", args.get(0)));
         } catch (Exception e) {
-                sendMessage(channel, "An error occurred. If this keeps on happening,\nplease contact a bot developer.");
+                sendMessage(channel, language.BOT_ERROR());
             }
     }
 
     @Override
-    public String getHelp() {
-        return "Creates a command\nUsage: "+ Config.getInstance().getString("prefix")+"createcommand <invoke> <Command response>";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_CREATE_COMMAND();
     }
 
     @Override

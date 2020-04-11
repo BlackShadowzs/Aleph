@@ -22,6 +22,8 @@ import me.duncte123.botcommons.web.WebUtils;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -42,9 +44,10 @@ public class GithubCommand implements ICommand {
         List<String> args = ctx.getArgs();
         TextChannel channel = ctx.getChannel();
         Member member = ctx.getMember();
+        final Language language = ctx.getGuildLanguage();
 
         if (args.isEmpty()) {
-            sendMessage(channel, getHelp());
+            sendMessage(channel, getHelp(ctx.getGuild().getId()));
         }
 
         WebUtils.ins.getJSONObject("https://api.github.com/users/"+args.get(0)).async((json) -> {
@@ -65,15 +68,19 @@ public class GithubCommand implements ICommand {
             final String website = websiteProvided(json.get("blog").asText()) ? "[Click me]("+json.get("blog").asText()+")" : "Not provided";
 
             EmbedBuilder embed = createEmbed(member)
-                    .setAuthor("GitHub User: "+username, userPageLink, avatarUrl)
-                    .addField("User Info",
-                            "**Real Name**: *"+realName+"*\n" +
-                                    "**Location**: *"+location+"*\n" +
-                                    "**GitHub ID**: *"+githubId+"*\n" +
-                                    "**Website**: *"+website+"*\n", true)
-                    .addField("Social Stats",
-                                    "**Followers**: *"+followers+"*\n"+
-                                    "**Following**: *"+following+"*", true)
+                    .setAuthor(language.GITHUB_USER()+username, userPageLink, avatarUrl)
+                    .addField(language.GITHUB_USER_INFO(),
+                            String.format("%s\n" +
+                                    "%s\n" +
+                                    "%s\n" +
+                                    "%s\n", language.GITHUB_REAL_NAME().replace("REPLACE", realName),
+                                    language.GITHUB_LOCATION().replace("REPLACE", location),
+                                    language.GITHUB_ID().replace("REPLACE", githubId),
+                                    language.GITHUB_WEBSITE().replace("REPLACE", website)), true)
+                    .addField(language.GITHUB_SOCIAL_STATS(),
+                                    String.format(
+                                    "%s\n"+
+                                    language.GITHUB_FOLLOWERS().replace("REPLACE", followers), language.GITHUB_FOLLOWING().replace("REPLACE", following)), true)
                     .setDescription("**Bio**:\n"+bio)
                     .setImage(avatarUrl)
                     .setFooter("")
@@ -84,8 +91,8 @@ public class GithubCommand implements ICommand {
     }
 
     @Override
-    public String getHelp() {
-        return "Searches up a GitHub user.\nUsage: "+ Config.getInstance().get("prefix")+"github <GitHub Username>";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_GITHUB();
     }
 
     @Override

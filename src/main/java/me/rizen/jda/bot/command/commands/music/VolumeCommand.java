@@ -22,6 +22,8 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import me.rizen.jda.bot.music.GuildMusicManager;
 import me.rizen.jda.bot.music.PlayerManager;
 import net.dv8tion.jda.api.entities.Guild;
@@ -44,13 +46,14 @@ public class VolumeCommand implements ICommand {
         GuildMusicManager musicManager = playerManager.getGuildMusicManager(ctx.getEvent().getGuild());
         AudioPlayer player = musicManager.player;
         TextChannel channel = ctx.getEvent().getChannel();
+        final Language language = ctx.getGuildLanguage();
 
         if (!isPlaying(guild)) {
-            sendMessage(channel, "I am not playing in this guild!");
+            sendMessage(channel, language.ERROR_NOT_PLAYING());
             return;
         }
         if (!inSameVoiceChannel(guild, member)) {
-            sendMessage(channel, "You have to be in the same voice channel as me to use this");
+            sendMessage(channel, language.ERROR_NOT_IN_SAME_VOICE_CHANNEL());
             return;
         }
 
@@ -58,24 +61,18 @@ public class VolumeCommand implements ICommand {
         String s = ctx.getArgs().get(0);
         double i = Double.parseDouble(s);
         if (Double.isNaN(i)) {
-            if (s.toLowerCase().equals("reset")) {
-                player.setVolume(40);
-                sendMessage(channel, "Successfully reset the volume!");
-                return;
-            }
-            sendMessage(channel, "You must provide a valid number!");
+            sendMessage(channel, language.ERROR_NAN());
             return;
         }
 
         getPlayer(guild).setVolume((int) i);
 
-        sendMessage(channel, "Successfully set the volume to "+s);
+        sendMessage(channel, language.SUCCESS_SET_VOLUME()+s);
     }
 
     @Override
-    public String getHelp() {
-        return "Sets the volume [Default: 40]\n" +
-                "Usage: "+Config.getInstance().getString("prefix")+"volume <Volume|Reset>";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_VOLUME();
     }
 
     @Override

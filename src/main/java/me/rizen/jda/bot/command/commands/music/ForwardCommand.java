@@ -21,6 +21,8 @@ package me.rizen.jda.bot.command.commands.music;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -37,14 +39,15 @@ public class ForwardCommand implements ICommand {
         TextChannel channel = ctx.getEvent().getChannel();
         Member member = ctx.getMember();
         List<String> args = ctx.getArgs();
+        final Language language = ctx.getGuildLanguage();
 
         if (!isPlaying(guild)) {
-            sendMessage(channel, "I'm currently not playing in this guild.");
+            sendMessage(channel, language.ERROR_NOT_PLAYING());
             return;
         }
 
         if (!inSameVoiceChannel(guild, member)) {
-            sendMessage(channel, "You're not in my voice channel.");
+            sendMessage(channel, language.ERROR_NOT_IN_SAME_VOICE_CHANNEL());
             return;
         }
 
@@ -53,8 +56,8 @@ public class ForwardCommand implements ICommand {
 
 
     @Override
-    public String getHelp() {
-        return String.format("Forwards the song\nUsage: %sforward [seconds]\nIf no arguments are provided seconds=10", Config.getInstance().getString("prefix"));
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_FORWARD();
     }
 
     @Override

@@ -23,6 +23,7 @@ import me.rizen.jda.bot.command.ICommand
 import me.rizen.jda.bot.config.Config
 import me.rizen.jda.bot.functions.APIFunctions.createFreeRealEstateMeme
 import me.rizen.jda.bot.functions.MessageFunctions.sendMessage
+import me.rizen.jda.bot.misc.GuildLanguage
 
 
 class FreeRealEstateMemeCommand : ICommand {
@@ -30,15 +31,15 @@ class FreeRealEstateMemeCommand : ICommand {
         val channel = ctx?.channel
         val args = ctx?.args
         if (args?.isEmpty()!!) {
-            sendMessage(channel, "Please provide some text for your meme.")
+            sendMessage(channel, ctx.guildLanguage?.MISSING_ARGS())
         }
         val subList = ctx.args?.subList(0, args.size)
         val message = subList.toString().replace("[", "").replace("]", "").replace(",", "")
         createFreeRealEstateMeme(channel, message)
     }
 
-    override fun getHelp(): String {
-        return "Generates an \"It's Free Real Estate Me\"\nUsage: "+ Config.getInstance()["prefix"]+"freereal <Meme Text>"
+    override fun getHelp(guildId: String): String? {
+        return GuildLanguage.GuildLanguage[guildId]?.COMMAND_HELP_FREEREAL()
     }
 
     override fun getCategory(): String {

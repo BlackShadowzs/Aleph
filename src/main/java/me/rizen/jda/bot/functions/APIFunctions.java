@@ -24,6 +24,8 @@ import me.duncte123.botcommons.web.ContentType;
 import me.duncte123.botcommons.web.WebParserUtils;
 import me.duncte123.botcommons.web.WebUtils;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -42,7 +44,9 @@ import static me.rizen.jda.bot.functions.MessageFunctions.*;
 
 public class APIFunctions {
     private static final String HASTE_SERVER = "https://hasteb.in/";
-
+    static Language getGuildLanguage(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId);
+    }
     public static void getLyrics(TextChannel channel, Member member, String text) {
         WebUtils.ins.getJSONObject("https://api.genius.com/search?q=" + text + "&access_token=" + Config.getInstance().getString("geniusKey")).async((json) -> {
             String path = json.findValue("path").asText();
@@ -53,7 +57,7 @@ public class APIFunctions {
                 sendEmbed(channel, createEmbed(member)
                         .setTitle(fullTitle)
                         .setColor(Color.PINK)
-                        .addField("Full lyrics not there?", "Find the rest of the lyrics [here](https://genius.com" + path + ")", false)
+                        .addField(getGuildLanguage(channel.getGuild().getId()).LYRICS_FIELD_NAME(), getGuildLanguage(channel.getGuild().getId()).LYRICS_FIELD_VALUE(), false)
                         .setDescription(lyrics));
 
             });
@@ -61,6 +65,7 @@ public class APIFunctions {
     }
 
     public static void invertImage(TextChannel channel, User target) throws IOException {
+        final Language language = getGuildLanguage(channel.getGuild().getId());
         String effectiveAvatarUrl = target.getEffectiveAvatarUrl();
         OkHttpClient client = new OkHttpClient();
         RequestBody req = new FormBody.Builder()
@@ -76,16 +81,17 @@ public class APIFunctions {
         Response res = call.execute();
 
         if (res.code() == 429) {
-            sendMessage(channel, "I've been  rate-limited.\nPlease try again later.");
+            sendMessage(channel, language.ERROR_RATE_LIMIT());
             return;
         }
 
         assert res.body() != null;
-        channel.sendMessage("Here is **" + target.getAsTag() + "**'s avatar, with the `invert` filter on.")
+        channel.sendMessage(language.INVERT_MESSAGE().replace("REPLACE", target.getAsTag()))
                 .addFile(Objects.requireNonNull(res.body()).bytes(), "Aleph.png").queue();
     }
 
     public static void createDrakeMeme(TextChannel channel, String topAndBottomLine) throws IOException {
+        final Language language = getGuildLanguage(channel.getGuild().getId());
         String top = topAndBottomLine.split(":")[0];
         String bottom = topAndBottomLine.split(":")[1];
         OkHttpClient client = new OkHttpClient();
@@ -103,12 +109,12 @@ public class APIFunctions {
         Response res = call.execute();
 
         if (res.code() == 429) {
-            sendMessage(channel, "I've been  rate-limited.\nPlease try again later.");
+            sendMessage(channel, language.ERROR_RATE_LIMIT());
             return;
         }
 
         assert res.body() != null;
-        channel.sendMessage("Here is your drake meme!")
+        channel.sendMessage(language.DRAKE_MESSAGE())
                 .addFile(Objects.requireNonNull(res.body()).bytes(), "Aleph.png").queue();
     }
 
@@ -122,7 +128,7 @@ public class APIFunctions {
     }
 
     public static void sendWeatherInformation(TextChannel channel, Member member, String location) {
-        try {
+        final Language language = getGuildLanguage(channel.getGuild().getId());
             WebUtils.ins.getJSONArray("https://sparse.pw/api/checkweather?key=" + Config.getInstance().getString("sparseKey") + "&loc=" + location).async(
                     (json) -> {
 
@@ -137,19 +143,17 @@ public class APIFunctions {
 
                         sendEmbed(channel, createEmbed(member)
                                 .setAuthor(locationName)
-                                .addField("Low", coldest + "°F", true)
-                                .addField("High", warmest + "°F", true)
-                                .addField("Temperature", temperature + "°F", true)
+                                .addField(language.WEATHER_LOW(), coldest + "°F", true)
+                                .addField(language.WEATHER_HIGH(), warmest + "°F", true)
+                                .addField(language.WEATHER_TEMPERATURE(), temperature + "°F", true)
                                 .setTitle(weatherKind));
 
                     }
             );
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public static void htmlToPdf(TextChannel channel, String html) throws IOException {
+        final Language language = getGuildLanguage(channel.getGuild().getId());
         String apiKey = Config.getInstance().getString("html2pdfKey");
         OkHttpClient client = new OkHttpClient();
         RequestBody req = new FormBody.Builder()
@@ -166,7 +170,7 @@ public class APIFunctions {
         Response res = call.execute();
 
         if (res.code() == 429) {
-            sendMessage(channel, "I've been  rate-limited.\nPlease try again later.");
+            sendMessage(channel, language.ERROR_RATE_LIMIT());
             return;
         }
         assert res.body() != null;
@@ -174,6 +178,7 @@ public class APIFunctions {
     }
 
     public static void randomQuote(TextChannel channel) throws IOException {
+        final Language language = getGuildLanguage(channel.getGuild().getId());
         Request req = WebUtils.defaultRequest().addHeader("x-rapidapi-host", "andruxnet-random-famous-quotes.p.rapidapi.com")
                 .addHeader("x-rapidapi-key", Config.getInstance().getString("rakutenKey"))
                 .get().url("https://andruxnet-random-famous-quotes.p.rapidapi.com/?cat=famous&count=1").build();
@@ -181,7 +186,7 @@ public class APIFunctions {
 
         Response response = client.newCall(req).execute();
         if (response.code() == 429) {
-            sendMessage(channel, "I've been  rate-limited.\nPlease try again later.");
+            sendMessage(channel, language.ERROR_RATE_LIMIT());
             return;
         }
         assert response.body() != null;
@@ -197,6 +202,7 @@ public class APIFunctions {
     }
 
     public static void createFreeRealEstateMeme(TextChannel channel, String text) throws IOException {
+        final Language language = getGuildLanguage(channel.getGuild().getId());
         OkHttpClient client = new OkHttpClient();
         RequestBody req = new FormBody.Builder()
                 .add("text", text)
@@ -211,16 +217,17 @@ public class APIFunctions {
         Response res = call.execute();
 
         if (res.code() == 429) {
-            sendMessage(channel, "I've been  rate-limited.\nPlease try again later.");
+            sendMessage(channel, language.ERROR_RATE_LIMIT());
             return;
         }
 
         assert res.body() != null;
-        channel.sendMessage("Your free real estate meme.")
+        channel.sendMessage(language.FREE_REAL_MESSAGE())
                 .addFile(Objects.requireNonNull(res.body()).bytes(), "Aleph.png", new net.dv8tion.jda.api.utils.AttachmentOption[]{}).queue();
     }
 
     public static void getRandomCocktail(TextChannel channel, Member member) {
+        final Language language = getGuildLanguage(channel.getGuild().getId());
         WebUtils.ins.getJSONObject("https://www.thecocktaildb.com/api/json/v1/1/random.php").async((json) -> {
             final String strDrink = json.findValue("strDrink").asText();
             final String alcoholic = json.findValue("strAlcoholic").asText();
@@ -235,10 +242,10 @@ public class APIFunctions {
             final EmbedBuilder builder = createEmbed(member)
                     .setTitle(strDrink)
                     .setThumbnail(pictureOfDrink)
-                    .setDescription("Instructions & Ingredients:```yaml\n")
-                    .addField("Alcoholic", isAlchoholic, true)
-                    .addField("Serving Glass", servingGlass, true)
-                    .setFooter("Modified: " + dateModified);
+                    .setDescription(language.COCKTAIL_INIT_DESCRIPTION())
+                    .addField(language.COCKTAIL_ALCOHOLIC(), isAlchoholic, true)
+                    .addField(language.COCKTAIL_LAST_MODIFIED(), servingGlass, true)
+                    .setFooter(language.COCKTAIL_LAST_MODIFIED() + dateModified);
 
             for (int i = 1; i <= 15 ; i++) {
                 int finalI = i;
@@ -260,6 +267,7 @@ public class APIFunctions {
     }
 
     public static void searchCocktail(TextChannel channel, Member member, String cocktailName) {
+        final Language language = getGuildLanguage(channel.getGuild().getId());
         WebUtils.ins.getJSONObject("https://www.thecocktaildb.com/api/json/v1/1/search.php?s="+cocktailName).async((json) -> {
             final String strDrink = json.findValue("strDrink").asText();
             final String alcoholic = json.findValue("strAlcoholic").asText();
@@ -274,10 +282,10 @@ public class APIFunctions {
             final EmbedBuilder builder = createEmbed(member)
                     .setTitle(strDrink)
                     .setThumbnail(pictureOfDrink)
-                    .setDescription("Instructions & Ingredients:```yaml\n")
-                    .addField("Alcoholic", isAlchoholic, true)
-                    .addField("Serving Glass", servingGlass, true)
-                    .setFooter("Modified: " + dateModified);
+                    .setDescription(language.COCKTAIL_INIT_DESCRIPTION())
+                    .addField(language.COCKTAIL_ALCOHOLIC(), isAlchoholic, true)
+                    .addField(language.COCKTAIL_LAST_MODIFIED(), servingGlass, true)
+                    .setFooter(language.COCKTAIL_LAST_MODIFIED() + dateModified);
 
             for (int i = 1; i <= 15 ; i++) {
                 int finalI = i;
@@ -298,6 +306,7 @@ public class APIFunctions {
         });
     }
     public static void yodanize(TextChannel channel, String text) {
+        final Language language = getGuildLanguage(channel.getGuild().getId());
         try {
         RequestBody req = new FormBody.Builder()
                 .add("text", text)
@@ -311,14 +320,15 @@ public class APIFunctions {
         WebUtils.ins.prepareRaw(request, (r) -> WebParserUtils.toJSONObject(r, new ObjectMapper())).async((json) -> {
             final String translated = json.findValue("translated").asText();
 
-            sendMessage(channel, "Yoda would say: "+translated);
+            sendMessage(channel, language.YODA_WOULD_SAY().replace("REPLACE", translated));
         });
     } catch (NullPointerException e) {
-        sendMessage(channel, "I've been ratelimited, I apologize.\nTry again later.");
+        sendMessage(channel, language.ERROR_RATE_LIMIT());
     }
     }
 
     public static void mandalorianize(TextChannel channel, String text) {
+        final Language language = getGuildLanguage(channel.getGuild().getId());
         try {
         RequestBody req = new FormBody.Builder()
                 .add("text", text)
@@ -332,13 +342,14 @@ public class APIFunctions {
         WebUtils.ins.prepareRaw(request, (r) -> WebParserUtils.toJSONObject(r, new ObjectMapper())).async((json) -> {
             final String translated = json.findValue("translated").asText();
 
-            sendMessage(channel, "In mandalorian that is: "+translated);
+            sendMessage(channel, language.IN_MANDALORIAN_THAT_IS().replace("REPLACE", translated));
         });
         } catch (NullPointerException e) {
-            sendMessage(channel, "I've been ratelimited, I apologize.\nTry again later.");
+            sendMessage(channel, language.ERROR_RATE_LIMIT());
         }
     }
     public static void sithify(TextChannel channel, String text) {
+        final Language language = getGuildLanguage(channel.getGuild().getId());
         try {
             RequestBody req = new FormBody.Builder()
                     .add("text", text)
@@ -352,10 +363,10 @@ public class APIFunctions {
             WebUtils.ins.prepareRaw(request, (r) -> WebParserUtils.toJSONObject(r, new ObjectMapper())).async((json) -> {
                 final String translated = json.findValue("translated").asText();
 
-                sendMessage(channel, "In sith that is: " + translated);
+                sendMessage(channel, language.IN_SITH_THAT_IS().replace("REPLACE", translated));
             });
         } catch (NullPointerException e) {
-            sendMessage(channel, "I've been ratelimited, I apologize.\nTry again later.");
+            sendMessage(channel, language.ERROR_RATE_LIMIT());
         }
     }
 

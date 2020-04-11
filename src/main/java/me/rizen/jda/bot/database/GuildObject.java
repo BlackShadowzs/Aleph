@@ -23,17 +23,19 @@ public class GuildObject {
     public final String owner;
     public final String ownerId;
     public final String prefix;
+    public final String language;
     public final String logs;
     public final String adminRole;
     public final String adminPerm;
     public final String modRole;
     public final String modPerm;
 
-    public GuildObject(String guildId, String owner, String ownerId, String prefix, String logs, String adminRole, String adminPerm, String modRole, String modPerm) {
+    public GuildObject(String guildId, String owner, String ownerId, String prefix, String language, String logs, String adminRole, String adminPerm, String modRole, String modPerm) {
         this.id = guildId;
         this.owner = owner;
         this.ownerId = ownerId;
         this.prefix = prefix;
+        this.language = language;
         this.logs = logs;
         this.adminRole = adminRole;
         this.adminPerm = adminPerm;

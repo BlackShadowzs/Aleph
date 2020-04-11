@@ -22,6 +22,7 @@ import groovy.lang.GroovyShell;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
@@ -44,7 +45,7 @@ public class EvalCommand implements ICommand {
                 "import net.dv8tion.jda.api.*\n" +
                 "import net.dv8tion.jda.api.entities.*\n" +
                 "import net.dv8tion.jda.api.entities.impl.*\n" +
-                "import static me.rizen.jda.Bot.Database.DatabaseFunctions.*;\n" +
+                "import static me.rizen.jda.bot.database.DatabaseFunctions.*;\n" +
                 "import net.dv8tion.jda.api.managers.*\n" +
                 "import net.dv8tion.jda.api.managers.impl.*\n" +
                 "import net.dv8tion.jda.api.utils.*\n";
@@ -89,8 +90,8 @@ public class EvalCommand implements ICommand {
     }
 
     @Override
-    public String getHelp() {
-        return "Evaluates Groovy/Java code.\nUsage: "+ Config.getInstance().getString("prefix")+ "eval <Groovy Code Here>";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_EVAL();
     }
 
     @Override

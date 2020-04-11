@@ -21,6 +21,8 @@ package me.rizen.jda.bot.command.commands.music;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import java.util.List;
@@ -34,17 +36,17 @@ public class LyricsCommand implements ICommand {
         TextChannel channel = ctx.getChannel();
         Member member = ctx.getMember();
         List<String> args = ctx.getArgs();
-
+        final Language language = ctx.getGuildLanguage();
         if (args.isEmpty()) {
-            sendMessage(channel, "Please provide a song name or artist.");
+            sendMessage(channel, language.MISSING_ARGS());
         }
         String text = args.toString().replace("[", "").replace("]", "").replace(",", "").replace("\\s", "%20");
         getLyrics(channel, member, text);
     }
 
     @Override
-    public String getHelp() {
-        return "Displays the first lines of the currently playing song's lyrics.\nUsage: "+Config.getInstance().getString("prefix")+"lyrics <Song Name>";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_LYRICS();
     }
 
     @Override

@@ -21,6 +21,7 @@ package me.rizen.jda.bot.command.commands.owner;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.JDA;
 
 import java.util.List;
@@ -45,8 +46,8 @@ public class BotServersInfo implements ICommand {
     }
 
     @Override
-    public String getHelp() {
-        return "Display information about each guild the bot is in.\nNotice: As this is marked as personal data by Discord it must be an owner-only command.";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_BOTSERVERSINFO();
     }
 
     @Override

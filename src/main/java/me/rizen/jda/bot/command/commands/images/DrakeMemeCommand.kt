@@ -23,6 +23,7 @@ import me.rizen.jda.bot.command.ICommand
 import me.rizen.jda.bot.config.Config
 import me.rizen.jda.bot.functions.APIFunctions.createDrakeMeme
 import me.rizen.jda.bot.functions.MessageFunctions.sendMessage
+import me.rizen.jda.bot.misc.GuildLanguage
 import java.io.IOException
 
 class DrakeMemeCommand : ICommand {
@@ -30,17 +31,17 @@ class DrakeMemeCommand : ICommand {
         val channel = ctx?.channel
         val topAndBottomLine = ctx?.args.toString().replace("[", "").replace("]", "").replace(",", "")
 
-        if (!topAndBottomLine.contains(":")) return sendMessage(channel, getHelp())
+        if (!topAndBottomLine.contains(":")) return sendMessage(channel, getHelp(ctx?.guild?.id))
 
         try {
             createDrakeMeme(channel, topAndBottomLine)
         } catch (e: IOException) {
-            sendMessage(channel, "Error occurred. If this keep on happening\nplease contact a bot-developer!")
+            sendMessage(channel, ctx?.guildLanguage?.BOT_ERROR())
         }
     }
 
-    override fun getHelp(): String {
-        return "Generates a Drake Meme.\nUsage: "+ Config.getInstance().getString("prefix")+"drake <Top Line : Bottom Line>\nLines are split on ':'"
+    override fun getHelp(guildId: String?): String? {
+        return GuildLanguage.GuildLanguage[guildId]?.COMMAND_HELP_DRAKE()
     }
 
     override fun getCategory(): String {

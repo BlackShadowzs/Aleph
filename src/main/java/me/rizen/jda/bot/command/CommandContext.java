@@ -19,6 +19,9 @@
 package me.rizen.jda.bot.command;
 
 import me.duncte123.botcommons.commands.ICommandContext;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.languages.en_GB;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -46,5 +49,9 @@ public class CommandContext implements ICommandContext {
 
     public List<String> getArgs() {
         return this.args;
+    }
+
+    public Language getGuildLanguage() {
+        return GuildLanguage.GuildLanguage.get(getGuild().getId());
     }
 }

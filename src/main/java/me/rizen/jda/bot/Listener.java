@@ -18,6 +18,9 @@
 
 package me.rizen.jda.bot;
 
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.languages.en_GB;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import me.rizen.jda.bot.misc.Prefixes;
 import me.rizen.jda.bot.config.Config;
 import net.dv8tion.jda.api.entities.*;
@@ -55,23 +58,40 @@ class Listener extends ListenerAdapter {
         event.getJDA().getPresence().setActivity(Activity.streaming(";help - " + event.getJDA().getGuilds().size() + " servers", "https://twitch.tv/ugrizen"));
         try {
             event.getJDA().getGuilds().forEach((guild) -> {
+                String guildId = guild.getId();
                 User owner = guild.retrieveOwner().complete().getUser();
                 try {
-                    registerGuild(guild.getId(), ";", owner.getAsTag(), owner.getId());
+                    registerGuild(guildId, ";", owner.getAsTag(), owner.getId());
                 } catch (ExecutionException | InterruptedException e) {
                     e.printStackTrace();
                 }
 
                 final String prefix;
                 try {
-                    prefix = getPrefix(guild.getId());
+                    prefix = getPrefix(guildId);
 
-                    Prefixes.PREFIXES.put(guild.getId(), prefix);
+                    Prefixes.PREFIXES.put(guildId, prefix);
+
+                String getLanguage = getDatabase().collection(guildId).document("guildConfig").get().get().getString("language");
+                if (getLanguage.equalsIgnoreCase("en_GB")) {
+                    GuildLanguage.GuildLanguage.put(guildId, new en_GB());
+                }
+                if (getLanguage.equalsIgnoreCase("da_DK")) {
+                    GuildLanguage.GuildLanguage.put(guildId, new en_GB());
+                }
+                if (getLanguage.equalsIgnoreCase("ro_RO")) {
+                    GuildLanguage.GuildLanguage.put(guildId, new en_GB());
+                }
+                if (getLanguage.equalsIgnoreCase("it_IT")) {
+                    GuildLanguage.GuildLanguage.put(guildId, new en_GB());
+                }
+                if (getLanguage.equalsIgnoreCase("nb_NO")) {
+                    GuildLanguage.GuildLanguage.put(guildId, new en_GB());
+                }
+
                 } catch (ExecutionException | InterruptedException e) {
                     e.printStackTrace();
                 }
-
-
             });
 
         } catch (Exception e) {

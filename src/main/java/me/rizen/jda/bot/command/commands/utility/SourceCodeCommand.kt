@@ -22,15 +22,17 @@ import me.rizen.jda.bot.functions.MessageFunctions.sendMessage
 import me.rizen.jda.bot.command.CommandContext
 import me.rizen.jda.bot.command.ICommand
 import me.rizen.jda.bot.config.Config
+import me.rizen.jda.bot.misc.GuildLanguage
 
 class SourceCodeCommand : ICommand {
     override fun handle(ctx: CommandContext?) {
         val channel = ctx?.channel
-        sendMessage(channel, "Here is a link to see my private parts ...\nhttps://github.com/Aleph-Discord-Bot/Aleph")
+        sendMessage(channel, ctx?.guildLanguage?.SOURCE_CODE_PRIVATE_PARTS()?.replace("REPLACE",
+                "\nhttps://github.com/Aleph-Discord-Bot/Aleph"))
     }
 
-    override fun getHelp(): String {
-        return "Sends the link to Aleph's GitHub.\nUsage"+ Config.getInstance().getString("prefix")+"sourcecode"
+    override fun getHelp(guildId: String?): String? {
+        return GuildLanguage.GuildLanguage[guildId]!!.COMMAND_HELP_SOURCECODE()
     }
 
     override fun getCategory(): String {

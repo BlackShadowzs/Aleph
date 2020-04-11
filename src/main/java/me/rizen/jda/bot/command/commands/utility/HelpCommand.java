@@ -20,6 +20,8 @@ package me.rizen.jda.bot.command.commands.utility;
 
 import com.google.cloud.firestore.DocumentSnapshot;
 import me.rizen.jda.bot.CommandManager;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import me.rizen.jda.bot.misc.Prefixes;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
@@ -47,6 +49,7 @@ public class HelpCommand implements ICommand {
 
     @Override
     public void handle(CommandContext ctx) {
+        final Language language = ctx.getGuildLanguage();
         try {
             TextChannel channel = ctx.getChannel();
             Member member = ctx.getMember();
@@ -56,35 +59,36 @@ public class HelpCommand implements ICommand {
                 ICommand command = manager.getCommand(args.get(0));
                 DocumentSnapshot customCommand = getCustomCommand(guild, args.get(0));
                 if (command == null && !customCommand.exists()) {
-                    sendMessage(channel, "Command not found.\n`" + Config.getInstance().getString("prefix") + "help` for a command list.");
+                    sendMessage(channel, language.HELP_COMMAND_NOT_FOUND(guild.getId()));
                     return;
                 }
                 String help = customCommand.getString("help");
                 if (command != null && customCommand.getString("invoke") == null) {
-                    String commandHelp = command.getHelp() == null ? "No instructions were provided for this command." : command.getHelp();
-                    String aliases = !command.getAliases().isEmpty() ? command.getAliases().toString().replace("[", "").replace("]", "") : "No aliases";
-                    EmbedBuilder embed = createEmbed(member).setAuthor("Help Menu", null, member.getUser().getEffectiveAvatarUrl()).setDescription(
-                            capitalise(command.getName()) + "```yaml\n" + commandHelp + "```\nAliases: `" + aliases + "`");
+                    String commandHelp = command.getHelp(ctx.getGuild().getId()) == null ? GuildLanguage.GuildLanguage.get(ctx.getGuild().getId()).DEFAULT_COMMAND_HELP() : command.getHelp(ctx.getGuild().getId());
+                    String aliases = !command.getAliases().isEmpty() ? command.getAliases().toString().replace("[", "").replace("]", "") : language.NO_ALIASES();
+                    EmbedBuilder embed = createEmbed(member).setAuthor(language.HELP_MENU(), null, member.getUser().getEffectiveAvatarUrl()).setDescription(
+                            capitalise(command.getName()) + "```yaml\n" + commandHelp +"```\n"+ language.ALIASES().replace("REPLACE", aliases));
                     sendEmbed(channel, embed);
                     return;
                 } else if (command == null && customCommand.getString("invoke") != null) {
                     String name = customCommand.getString("invoke");
-                    EmbedBuilder embed = createEmbed(member).setAuthor("Help Menu", null, member.getUser().getEffectiveAvatarUrl()).setDescription(
+                    EmbedBuilder embed = createEmbed(member).setAuthor(language.HELP_MENU(), null, member.getUser().getEffectiveAvatarUrl()).setDescription(
                             capitalise(name) + "```yaml\n" + help + "```");
                     sendEmbed(channel, embed);
                     return;
                 }
 
             }
-            EmbedBuilder embed = createEmbed(member).setAuthor("Aleph | Commands", null, ctx.getSelfMember().getUser().getEffectiveAvatarUrl())
+            EmbedBuilder embed = createEmbed(member).setAuthor(language.HELP_EMBED_AUTHOR(), null, ctx.getSelfMember().getUser().getEffectiveAvatarUrl())
                     .setColor(randomColour())
-                    .setDescription("If you require help with a specific command, do `" + Prefixes.PREFIXES.computeIfAbsent(guild.getId(), (id) -> Config.getInstance().getString("prefix")) + "help <command>`");
+                    .setDescription(language.HELP_EMBED_DESCRIPTION(guild.getId()));
             List<String> adminCmds = new ArrayList<>();
             List<String> imageCmds = new ArrayList<>();
             List<String> musicCmds = new ArrayList<>();
             List<String> modCmds = new ArrayList<>();
             List<String> utilCmds = new ArrayList<>();
             List<String> ownerCmds = new ArrayList<>();
+            List<String> funCmds = new ArrayList<>();
             manager.getCommands().forEach((cmd) -> {
                 final String category = cmd.getCategory();
                 if (category.equals("Admin")) {
@@ -96,6 +100,9 @@ public class HelpCommand implements ICommand {
                 if (category.equals("Music")) {
                     musicCmds.add(cmd.getName());
                 }
+                if (category.equals("Fun")) {
+                    funCmds.add(cmd.getName());
+                }
                 if (category.equals("Util")) {
                     utilCmds.add(cmd.getName());
                 }
@@ -106,42 +113,47 @@ public class HelpCommand implements ICommand {
                     imageCmds.add(cmd.getName());
                 }
             });
-            embed.appendDescription("\n\n**Admin Commands [" + adminCmds.size() + "]**\n");
+            embed.appendDescription(language.ADMIN_COMMANDS().replace("REPLACE", String.valueOf(adminCmds.size())));
             adminCmds.forEach(
                     (x) -> {
                         embed.appendDescription("`" + x + "` ");
                     });
-            embed.appendDescription("\n\n**Mod Commands [" + modCmds.size() + "]**\n");
+            embed.appendDescription(language.MOD_COMMANDS().replace("REPLACE", String.valueOf(modCmds.size())));
             modCmds.forEach(
                     (x) -> {
                         embed.appendDescription("`" + x + "` ");
                     });
-            embed.appendDescription("\n\n**Util Commands [" + utilCmds.size() + "]**\n");
+            embed.appendDescription(language.UTIL_COMMANDS().replace("REPLACE", String.valueOf(utilCmds.size())));
             utilCmds.forEach(
                     (x) -> {
                         embed.appendDescription("`" + x + "` ");
                     });
-            embed.appendDescription("\n\n**Image Commands [" + imageCmds.size() + "]**\n");
+            embed.appendDescription(language.IMAGE_COMMANDS().replace("REPLACE", String.valueOf(imageCmds.size())));
             imageCmds.forEach(
                     (x) -> {
                         embed.appendDescription("`" + x + "` ");
                     });
-            embed.appendDescription("\n\n**Owner Commands [" + ownerCmds.size() + "]**\n");
+            embed.appendDescription(language.FUN_COMMANDS().replace("REPLACE", String.valueOf(funCmds.size())));
+            funCmds.forEach(
+                    (x) -> {
+                        embed.appendDescription("`" + x + "` ");
+                    });
+            embed.appendDescription(language.OWNER_COMMANDS().replace("REPLACE", String.valueOf(ownerCmds.size())));
             ownerCmds.forEach(
                     (x) -> {
                         embed.appendDescription("`" + x + "` ");
                     });
-            embed.appendDescription("\n\n**Music Commands [" + musicCmds.size() + "]**\n");
+            embed.appendDescription(language.MUSIC_COMMANDS().replace("REPLACE", String.valueOf(musicCmds.size())));
             musicCmds.forEach(
                     (x) -> {
                         embed.appendDescription("`" + x + "` ");
                     });
 
             if (getCustomCommands(guild).isEmpty()) {
-                embed.appendDescription("\n\n**Custom Commands [" + getCustomCommands(guild).size() + "]**\n");
+                embed.appendDescription(language.CUSTOM_COMMANDS().replace("REPLACE", String.valueOf(getCustomCommands(guild).size())));
                 embed.appendDescription("This guild has no custom commands.");
             } else {
-                embed.appendDescription("\n\n**Custom Commands [" + getCustomCommands(guild).size() + "]**\n");
+                embed.appendDescription(language.CUSTOM_COMMANDS().replace("REPLACE", String.valueOf(getCustomCommands(guild).size())));
                 getCustomCommands(guild).forEach((cmd) -> {
                     embed.appendDescription("`"+cmd+"` ");
                 });
@@ -152,15 +164,15 @@ public class HelpCommand implements ICommand {
         sendEmbed(channel, embed);
         } catch (Exception e) {
             TextChannel channel = ctx.getChannel();
-            sendMessage(channel, "An error occurred. If this keeps on happening,\nplease contact a bot developer.");
+            sendMessage(channel, language.BOT_ERROR());
 
             e.printStackTrace();
         }
     }
 
     @Override
-    public String getHelp() {
-        return "Returns a list of commands.\nUsage: "+Config.getInstance().getString("prefix")+"help [Command Name]";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_HELP();
     }
 
     @Override

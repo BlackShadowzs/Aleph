@@ -22,6 +22,8 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -39,32 +41,32 @@ public class PauseCommand implements ICommand {
         TextChannel channel = ctx.getEvent().getChannel();
         AudioTrack playingTrack = getPlayingTrack(guild);
         AudioPlayer player = getPlayer(guild);
+        final Language language = ctx.getGuildLanguage();
 
         if(playingTrack == null) {
-            sendMessage(channel,"No song is currently playing!");
+            sendMessage(channel,language.ERROR_NOT_PLAYING());
             return;
         }
 
         if (!inSameVoiceChannel(guild, member)) {
-            sendMessage(channel,"You have to be in the same voice channel as me to use this");
+            sendMessage(channel,language.ERROR_NOT_IN_SAME_VOICE_CHANNEL());
             return;
         }
 
         boolean pausedState = player.isPaused();
-        String action = pausedState ? "Started" : "Paused";
+        String action = pausedState ? language.UNPAUSED() : language.PAUSED();
 
 
         player.setPaused(!pausedState);
 
-        sendMessage(channel,action+" the player!");
+        sendMessage(channel,action);
 
     }
 
     @Override
-    public String getHelp() {
-        return "Pauses player";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_PAUSE();
     }
-
     @Override
     public List<String> getAliases() {
         return List.of("resume");

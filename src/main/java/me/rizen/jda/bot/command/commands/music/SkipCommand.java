@@ -23,6 +23,8 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -55,14 +57,15 @@ public class SkipCommand implements ICommand {
         TextChannel channel = ctx.getEvent().getChannel();
         AudioPlayer player = getPlayer(guild);
         AudioTrack track = player.getPlayingTrack();
+        final Language language = ctx.getGuildLanguage();
 
         if(getPlayingTrack(guild) == null) {
-            channel.sendMessage("No song is currently playing!").queue();
+            channel.sendMessage(language.ERROR_NOT_PLAYING()).queue();
             return;
         }
 
         if (!inSameVoiceChannel(guild, member)) {
-            sendMessage(channel, "You have to be in the same voice channel as me to use this");
+            sendMessage(channel, language.ERROR_NOT_IN_SAME_VOICE_CHANNEL());
             return;
         }
 
@@ -71,12 +74,12 @@ public class SkipCommand implements ICommand {
 
         if (members == 1) {
             track.setPosition(track.getDuration());
-            sendMessage(channel, "Skipping ...");
+            sendMessage(channel, language.SUCCESS_SKIP());
             return;
         }
 
         if (al.contains(member.getId())) {
-            sendMessage(channel, "You've already vote-skipped.");
+            sendMessage(channel, language.ERROR_ALREADY_VOTE_SKIPPED());
             return;
         }
 
@@ -85,19 +88,19 @@ public class SkipCommand implements ICommand {
 
 
 
-        channel.sendMessage("You voted to skip the current song.\n`" + getVotes() + "/" + amtMembersNeededToVote + "` votes.").queue();
+        channel.sendMessage(language.SUCCESS_VOTE_SKIP()+"\n`" + getVotes() + "/" + amtMembersNeededToVote).queue();
         System.out.print(al);
         if (getVotes() == amtMembersNeededToVote) {
             track.setPosition(track.getDuration());
-            sendMessage(channel, "Skipping ...");
+            sendMessage(channel, language.SUCCESS_SKIP());
             setVotes(0);
             al.clear();
         }
     }
 
     @Override
-    public String getHelp() {
-        return "Allows to vote for a skip.\nUsage: "+ Config.getInstance().getString("prefix")+"voteskip.";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_SKIP();
     }
 
     @Override

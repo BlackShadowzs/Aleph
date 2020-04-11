@@ -21,8 +21,6 @@ package me.rizen.jda.bot.music;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 public class GuildMusicManager {
     /**
      * Audio player for the guild.

@@ -22,6 +22,8 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -37,18 +39,19 @@ public class SeekCommand implements ICommand {
         TextChannel channel = ctx.getChannel();
         List<String> args = ctx.getArgs();
         AudioTrack playingTrack = getPlayingTrack(guild);
+        final Language language = ctx.getGuildLanguage();
         if (args.isEmpty()) {
-            sendMessage(channel, "You must supply a number.");
+            sendMessage(channel, language.ERROR_NAN());
             return;
         }
         if (!args.toString().contains(":")) {
-            sendMessage(channel, getHelp());
+            sendMessage(channel, getHelp(guild.getId()));
             return;
         }
         String[] split = args.get(0).split(":");
 
         if (Double.isNaN(Double.parseDouble(split[0]))) {
-            sendMessage(channel, "You must supply a number.");
+            sendMessage(channel, language.ERROR_NAN());
             return;
         }
         double min = Double.parseDouble(split[0]) * 60;
@@ -57,9 +60,8 @@ public class SeekCommand implements ICommand {
     }
 
     @Override
-    public String getHelp() {
-        return "Sets the position of the song\nUsage: "+ Config.getInstance().getString("prefix")+"seek <Point in song which you want to play from>" +
-                "\nExample: "+ Config.getInstance().getString("prefix")+"seek 2:50";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_SEEK();
     }
 
     @Override
@@ -69,6 +71,6 @@ public class SeekCommand implements ICommand {
 
     @Override
     public String getName() {
-        return null;
+        return "seek";
     }
 }

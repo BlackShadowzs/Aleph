@@ -23,6 +23,8 @@ import com.google.cloud.firestore.Firestore;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -43,22 +45,23 @@ public class CaseCommand implements ICommand {
         TextChannel channel = ctx.getChannel();
         List<String> args = ctx.getArgs();
         Firestore database = getDatabase();
+        final Language language = ctx.getGuildLanguage();
 
         if (args.isEmpty()) {
-            sendMessage(channel, getHelp());
+            sendMessage(channel, getHelp(guild.getId()));
             return;
         }
 
         List<String> cases = new ArrayList<>();
         EmbedBuilder embed = createEmbed(ctx.getMember())
-                .setAuthor("Case List")
+                .setAuthor(language.CASE_LIST())
                 .setColor(randomColour());
 
 
         if (args.get(0).equalsIgnoreCase("list")) {
             database.collection(guild.getId()).listDocuments().forEach(
                     (doc) -> {
-                        if (doc.getId().startsWith("Case:")) {
+                        if (doc.getId().startsWith(language.CASE())) {
                             cases.add(doc.getId().replace("Case: ", ""));
                         }
                     }
@@ -67,7 +70,7 @@ public class CaseCommand implements ICommand {
             cases.forEach(
                     (caseList) -> {
                         if (cases.isEmpty()) {
-                            embed.setDescription("No cases registered in this guild.");
+                            embed.setDescription(language.NO_CASES_REGISTERED_IN_GUILD());
                         }
                         embed.appendDescription(caseList+"\n");
             }
@@ -82,7 +85,7 @@ public class CaseCommand implements ICommand {
 
         try {
             if (!document.get().get().exists()) {
-                sendMessage(channel, "This case isn't registered.\nDo `"+Config.getInstance().getString("prefix")+"case list` to get a list of cases.");
+                sendMessage(channel, language.CASE_NOT_FOUND());
                 return;
             }
         } catch (InterruptedException | ExecutionException e) {
@@ -92,19 +95,20 @@ public class CaseCommand implements ICommand {
         try {
             sendEmbed(channel, createEmbed(ctx.getMember())
             .setColor(Color.ORANGE)
-            .setAuthor("Case Info", null, ctx.getAuthor().getEffectiveAvatarUrl())
-            .addField("Punisher", document.get().get().getString("punisherName")+"\n"+document.get().get().getString(("punisherId")), true)
-            .addField("Target", document.get().get().getString("targetName")+"\n"+document.get().get().getString("targetId"), true)
-            .addField("Action type", document.get().get().getString("action"), true)
-            .setDescription("```ini\nReason for action:\n"+document.get().get().getString("reasonForWarn")+"```"));
+            .setAuthor(language.CASE_INFO(), null, ctx.getAuthor().getEffectiveAvatarUrl())
+            .addField(language.PUNISHER(), document.get().get().getString("punisherName")+"\n"+document.get().get().getString(("punisherId")), true)
+            .addField(language.TARGET(), document.get().get().getString("targetName")+"\n"+document.get().get().getString("targetId"), true)
+            .addField(language.ACTION_TYPE(), document.get().get().getString("action"), true)
+            .setDescription("```ini\n"+language.REASON_FOR_ACTION()+"\n"+document.get().get().getString("reasonForWarn")+"```"));
         } catch (InterruptedException | ExecutionException e) {
+            sendMessage(channel, language.BOT_ERROR());
             e.printStackTrace();
         }
     }
 
     @Override
-    public String getHelp() {
-        return "Displays info on a case or sends a list of cases.\nUsage: "+ Config.getInstance().getString("prefix")+"case <Case ID|List>";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_CASE();
     }
 
     @Override

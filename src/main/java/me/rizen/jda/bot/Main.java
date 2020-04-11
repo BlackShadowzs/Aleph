@@ -29,6 +29,8 @@ import me.duncte123.botcommons.web.WebUtils;
 import me.rizen.jda.bot.config.Config;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
@@ -37,7 +39,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 public class Main {
-    private Main() throws IOException, SQLException {
+    private Main() throws IOException {
         WebUtils.setUserAgent("Mozilla/5.0 Aleph#1255 / jonasschiott.online");
 
         try {
@@ -45,7 +47,8 @@ public class Main {
             EventWaiter waiter = new EventWaiter();
             CommandManager manager = new CommandManager(waiter);
             Listener listener = new Listener(manager);
-            JDABuilder.createDefault(config.getString("token"))
+            String token = System.getProperty("os.name").equalsIgnoreCase("linux") ? config.getString("token") : config.getString("betaToken");
+            JDABuilder.createDefault(token)
                     .setActivity(Activity.streaming("Booting ...", "https://twitch.tv/ugrizen"))
                     .addEventListeners(waiter, listener)
                     .build();
@@ -53,6 +56,7 @@ public class Main {
         } catch (LoginException e) {
             e.printStackTrace();
         }
+
         FileInputStream serviceAccount = System.getProperty("os.name").equals("Linux") ? new FileInputStream("/root/Aleph/serviceAccount.json")
                 : new FileInputStream("C:\\Users\\jonas\\OneDrive\\Skrivebord\\AdvancedModerationBot\\serviceAccount.json");
 
@@ -66,11 +70,11 @@ public class Main {
 
     }
 
-    public static Firestore getDatabase () {
+    public static Firestore getDatabase() {
         return FirestoreClient.getFirestore();
     }
 
-    public static void main(String[] args) throws IOException, SQLException {
+    public static void main(String[] args) throws IOException {
         new Main();
     }
 }

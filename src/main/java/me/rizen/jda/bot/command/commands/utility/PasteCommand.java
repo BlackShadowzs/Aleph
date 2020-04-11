@@ -21,6 +21,9 @@ package me.rizen.jda.bot.command.commands.utility;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.languages.en_GB;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.List;
@@ -34,7 +37,7 @@ public class PasteCommand implements ICommand {
         final TextChannel channel = ctx.getChannel();
 
         if (ctx.getArgs().isEmpty()) {
-            sendMessage(channel, "You must supply some text!");
+            sendMessage(channel, ctx.getGuildLanguage().MISSING_ARGS());
             return;
         }
 
@@ -47,8 +50,8 @@ public class PasteCommand implements ICommand {
     }
 
     @Override
-    public String getHelp() {
-        return "Posts some text/code to Hastebin.\nUsage: "+ Config.getInstance().getString("prefix")+"paste <Text>";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_HASTE();
     }
 
     @Override

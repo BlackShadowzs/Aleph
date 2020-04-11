@@ -23,6 +23,7 @@ import me.rizen.jda.bot.functions.MessageFunctions.sendMessage
 import me.rizen.jda.bot.command.CommandContext
 import me.rizen.jda.bot.command.ICommand
 import me.rizen.jda.bot.config.Config
+import me.rizen.jda.bot.misc.GuildLanguage
 
 class WeatherCommand : ICommand {
     override fun handle(ctx: CommandContext?) {
@@ -30,13 +31,13 @@ class WeatherCommand : ICommand {
         val member = ctx?.member
         val args = ctx?.args
 
-        if (args!!.isEmpty()) { return sendMessage(channel, help) }
+        if (args!!.isEmpty()) { return sendMessage(channel, getHelp(ctx.guild?.id)) }
         val location = args[0]
         sendWeatherInformation(channel, member, location)
     }
 
-    override fun getHelp(): String {
-        return "Sends information about the current weather in a city or country.\n"+ Config.getInstance().getString("prefix")+"weather <City|Country>"
+    override fun getHelp(guildId: String?): String? {
+        return GuildLanguage.GuildLanguage[guildId]!!.COMMAND_HELP_WEATHER()
     }
 
     override fun getCategory(): String {

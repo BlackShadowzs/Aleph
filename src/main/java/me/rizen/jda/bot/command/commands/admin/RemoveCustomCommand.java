@@ -23,8 +23,11 @@ import me.rizen.jda.bot.CommandManager;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -42,43 +45,43 @@ public class RemoveCustomCommand implements ICommand {
 
     @Override
     public void handle(CommandContext ctx) {
+        final Language language = ctx.getGuildLanguage();
+        final Firestore database = getDatabase();
+        final TextChannel channel = ctx.getChannel();
+        final Member member = ctx.getMember();
+        final Guild guild = ctx.getGuild();
+        final List<String> args = ctx.getArgs();
+        ctx.getJDA();
+
         try {
-             Firestore database = getDatabase();
-            TextChannel channel = ctx.getChannel();
-            Member member = ctx.getMember();
-            Guild guild = ctx.getGuild();
-            List<String> args = ctx.getArgs();
             if (!member.hasPermission(Permission.MANAGE_SERVER)) {
-                sendMessage(channel, "You must have the `MANAGE_SERVER` permission to run this.");
+                sendMessage(channel, language.MEMBER_MISSING_PERMISSIONS()+" (*MANAGE_SERVER*)");
                 return;
             }
             if (args.size() < 1) {
-                sendMessage(channel, getHelp());
+                sendMessage(channel, getHelp(guild.getId()));
                 return;
             }
             if (!database.collection(guild.getId()).document(args.get(0).toLowerCase()+"Command").get().get().exists() &&
                     manager.getCommand(args.get(0).toLowerCase()) != null) {
-                sendMessage(channel, "This command isn't deletable.");
+                sendMessage(channel, language.COMMAND_NOT_DELETEABLE());
                 return;
             }
             if (!database.collection(guild.getId()).document(args.get(0).toLowerCase()+"Command").get().get().exists()) {
-                sendMessage(channel, "This command doesn't exist.");
+                sendMessage(channel, language.COMMAND_DOES_NOT_EXIST());
                 return;
             }
 
              database.collection(guild.getId()).document(args.get(0)+"Command").delete();
-                 sendMessage(channel,"Successfully deleted command: `"+args.get(0)+"`");
+                 sendMessage(channel, language.SUCCESS_REMOVE_COMMAND().replace("REPLACE", args.get(0)));
         } catch (Exception e) {
-            TextChannel channel = ctx.getChannel();
-            sendMessage(channel, "An error occurred. If this keeps on happening,\nplease contact a bot developer.");
+            sendMessage(channel, language.BOT_ERROR());
         }
     }
 
-
-
     @Override
-    public String getHelp() {
-        return "Creates a command\nUsage: "+ Config.getInstance().getString("prefix")+"removecommand <invoke>";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_REMOVE_COMMAND();
     }
 
     @Override

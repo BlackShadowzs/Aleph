@@ -22,6 +22,8 @@ import com.google.cloud.firestore.DocumentSnapshot;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -42,42 +44,42 @@ public class SetHelpCommand implements ICommand {
         Member member = ctx.getMember();
         List<String> args = ctx.getArgs();
         TextChannel channel = ctx.getChannel();
+        final Language language = ctx.getGuildLanguage();
+
         try {
             if (!isAdmin(member)) {
-                sendMessage(channel, "You must be an admin in order to use this command.");
+                sendMessage(channel, language.MEMBER_MISSING_PERMISSIONS());
                 return;
             }
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
         if (args.size() < 2) {
-            sendMessage(channel, "Wrong format! ```yaml\n" + getHelp() + "```");
+            sendMessage(channel, getHelp(guild.getId()));
             return;
         }
         try {
             DocumentSnapshot commandDoc = getCustomCommand(guild, args.get(0));
             if (!commandDoc.exists()) {
-                sendMessage(channel, "This command does either not exist, or is a build-in command to the bot.");
+                sendMessage(channel, language.COMMAND_DOES_NOT_EXIST_OR_BUILT_IN_BOT());
                 return;
             }
             String newHelp = args.subList(1, args.size()).toString().replace("[", "").replace("]", "").replace(",", "");
             commandDoc.getReference().update("help", newHelp);
             EmbedBuilder builder = createEmbed(member)
-                    .setAuthor("Success", null, member.getUser().getEffectiveAvatarUrl())
+                    .setAuthor(language.SUCCESS_SUCCESS(), null, member.getUser().getEffectiveAvatarUrl())
                     .setColor(randomColour())
-                    .addField("Set the help for "+args.get(0)+" to:", newHelp, false);
+                    .addField(language.SUCCESS_SET_HELP_EMBED_FIELD_NAME()+args.get(0)+" to:", newHelp, false);
             sendEmbed(channel, builder);
         } catch (Exception e) {
-            sendMessage(channel, "An error occurred. If this keeps on happening,\nplease contact a bot developer.");
+            sendMessage(channel, language.BOT_ERROR());
         }
-        sendMessage(ctx.getChannel(), "This command is temporarily disabled while we fix our database!");
 
     }
 
-
     @Override
-    public String getHelp() {
-        return "Sets the help for a custom command.\nUsage: "+ Config.getInstance().getString("prefix")+"sethelp <Command Name> <What Command Does>";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_SETHELP();
     }
 
     @Override

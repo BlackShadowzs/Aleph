@@ -22,6 +22,8 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import me.rizen.jda.bot.music.GuildMusicManager;
 import me.rizen.jda.bot.music.TrackScheduler;
 import net.dv8tion.jda.api.entities.Guild;
@@ -42,14 +44,15 @@ public class StopCommand implements ICommand {
         TrackScheduler scheduler = getScheduler(guild);
         AudioManager audioManager = getAudioManager(guild);
         VoiceChannel voiceChannel = audioManager.getConnectedChannel();
+        final Language language = ctx.getGuildLanguage();
 
         if(player.getPlayingTrack() == null) {
-            channel.sendMessage("No song is currently playing!").queue();
+            channel.sendMessage(language.ERROR_NOT_PLAYING()).queue();
             return;
         }
 
         if (!voiceChannel.getMembers().contains(ctx.getEvent().getMember())) {
-            sendMessage(channel, "You have to be in the same voice channel as me to use this");
+            sendMessage(channel, language.ERROR_NOT_IN_SAME_VOICE_CHANNEL());
             return;
         }
 
@@ -58,14 +61,13 @@ public class StopCommand implements ICommand {
         musicManager.player.setPaused(false);
         scheduler.setRepeating(false);
 
-        sendMessage(channel, "Stopping the player and clearing the queue!");
+        sendMessage(channel, language.SUCCESS_STOPPED_SONG());
 
     }
 
     @Override
-    public String getHelp() {
-        return "Stops the music" +
-                "Usage: "+Config.getInstance().getString("prefix")+"stop";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_STOP();
     }
 
     @Override

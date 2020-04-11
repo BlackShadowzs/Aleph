@@ -22,6 +22,8 @@ import me.rizen.jda.bot.functions.ModerationFunctions;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -42,46 +44,47 @@ public class KickCommand implements ICommand {
             TextChannel channel = ctx.getChannel();
             Member selfMember = ctx.getSelfMember();
             List<Member> mentionedMembers = ctx.getMessage().getMentionedMembers();
+            final Language language = ctx.getGuildLanguage();
             if (!isMod(member)) {
-                sendMessage(channel, "You're missing the `KICK_MEMBERS` permission.");
+                sendMessage(channel, language.MEMBER_MISSING_PERMISSIONS());
                 return;
             }
 
             if (mentionedMembers.isEmpty()) {
-                sendMessage(channel, "You must mention a member.");
+                sendMessage(channel, language.MISSING_MENTION());
                 return;
             }
 
             Member target = mentionedMembers.get(0);
-            String reason = ctx.getArgs().size() > 0 ? String.join(" ", ctx.getArgs().subList(1, ctx.getArgs().size())) : "No reason provided.";
+            String reason = ctx.getArgs().size() > 0 ? String.join(" ", ctx.getArgs().subList(1, ctx.getArgs().size())) : language.NO_REASON_PROVIDED();
 
             if (!isMod(selfMember)) {
-                sendMessage(channel, "I am missing the `KICK_MEMBERS` permission.");
+                sendMessage(channel, language.BOT_MISSING_PERMISSIONS());
                 return;
             }
 
             if (!botCanInteract(selfMember, target)) {
-                sendMessage(channel, "I can't interact with them.");
+                sendMessage(channel, language.BOT_CANNOT_INTERACT());
                 return;
             }
             if (!selfMember.hasPermission(Permission.BAN_MEMBERS)) {
-                sendMessage(channel, "I am missing the `KICK_MEMBERS` permission.");
+                sendMessage(channel, language.BOT_MISSING_PERMISSIONS());
                 return;
             }
             if (target.equals(member)) {
-                sendMessage(channel, "Trying to kick yourself? Too bad, you can't.");
+                sendMessage(channel, language.MEMBER_KICK_SELF());
                 return;
             }
             handleKick(channel, member.getUser(), target, reason);
+            sendMessage(channel, language.SUCCESS_KICK());
         }catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public String getHelp() {
-        return "Kicks a member.\n"
-                + Config.getInstance().getString("prefix") +"kick <@Member|UserID>";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_KICK();
     }
 
     @Override

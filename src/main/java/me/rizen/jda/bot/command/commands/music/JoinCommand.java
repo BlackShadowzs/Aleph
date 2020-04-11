@@ -21,6 +21,8 @@ package me.rizen.jda.bot.command.commands.music;
 
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.managers.AudioManager;
 
@@ -40,19 +42,20 @@ public class JoinCommand implements ICommand {
         GuildVoiceState memberVoiceState = member.getVoiceState();
         VoiceChannel voiceChannel = memberVoiceState.getChannel();
         Member selfMember = ctx.getEvent().getGuild().getSelfMember();
+        final Language language = ctx.getGuildLanguage();
 
         if (botInVoiceChannel(guild)) {
-            sendMessage(channel, "I'm already connected  to a voice channel.");
+            sendMessage(channel, language.ERROR_ALREADY_CONNECTED_TO_VOICE_CHANNEL());
             return;
         }
 
         if (!memberInVoiceChannel(member)) {
-            sendMessage(channel, "You're not in a voice channel.");
+            sendMessage(channel, language.ERROR_NOT_IN_SAME_VOICE_CHANNEL());
             return;
         }
 
         if (!canJoinVoiceChannel(selfMember, voiceChannel)) {
-            sendMessage(channel, "I can't join that voice channel!");
+            sendMessage(channel, language.BOT_MISSING_PERMISSIONS());
             return;
         }
 
@@ -63,8 +66,8 @@ public class JoinCommand implements ICommand {
     }
 
     @Override
-    public String getHelp() {
-        return "Makes the bot join your channel";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_JOIN();
     }
 
     @Override

@@ -21,14 +21,15 @@ package me.rizen.jda.bot.command.commands.utility
 import me.rizen.jda.bot.functions.APIFunctions.checkWebsiteState
 import me.rizen.jda.bot.command.CommandContext
 import me.rizen.jda.bot.command.ICommand
+import me.rizen.jda.bot.misc.GuildLanguage
 
 class WebsiteStatusCommand : ICommand {
     override fun handle(ctx: CommandContext?) {
         checkWebsiteState(ctx?.channel, ctx?.member, ctx?.args?.get(0))
     }
 
-    override fun getHelp(): String {
-        TODO("not implemented") //To change body of created functions use file | Settings | file Templates.
+    override fun getHelp(guildId: String?): String? {
+        return GuildLanguage.GuildLanguage[guildId]!!.COMMAND_HELP_CHECKWEB()
     }
 
     override fun getCategory(): String {

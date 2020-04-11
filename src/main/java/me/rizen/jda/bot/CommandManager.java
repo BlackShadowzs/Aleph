@@ -19,6 +19,7 @@
 package me.rizen.jda.bot;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import me.rizen.jda.bot.command.commands.fun.*;
 import me.rizen.jda.bot.command.commands.images.DrakeMemeCommand;
 import me.rizen.jda.bot.command.commands.images.FreeRealEstateMemeCommand;
 import me.rizen.jda.bot.command.commands.images.InvertAvatarCommand;
@@ -88,7 +89,6 @@ public class CommandManager {
                 addCommand(new SkipCommand());
                 addCommand(new StopCommand());
                 addCommand(new VolumeCommand());
-                addCommand(new VoteskipCommand());
 
                 //Image Commands
                 addCommand(new InvertAvatarCommand());
@@ -99,20 +99,26 @@ public class CommandManager {
                 addCommand(new GithubCommand());
                 addCommand(new SourceCodeCommand());
                 addCommand(new WeatherCommand());
+                addCommand(new InfoCommand());
+                addCommand(new HelpCommand(this));
+                addCommand(new PasteCommand());
+                //addCommand(new RandomQuoteCommand());
+                addCommand(new PingCommand());
+                addCommand(new WebsiteStatusCommand());
+
+                //Fun Commands
                 addCommand(new TriviaCommand(waiter));
                 addCommand(new RandomFactCommand());
-                addCommand(new InfoCommand());
-                addCommand(new PingCommand());
                 addCommand(new HtmlToPdfCommand());
+                addCommand(new YesNoCommand());
+                addCommand(new TrumpQuoteCommand());
                 addCommand(new CocktailCommand());
                 addCommand(new YodaCommand());
-                addCommand(new WebsiteStatusCommand());
-                addCommand(new PasteCommand());
                 addCommand(new MandalorianCommand());
                 addCommand(new SithCommand());
                 addCommand(new JokeCommand());
-                //addCommand(new RandomQuoteCommand());
-                addCommand(new HelpCommand(this));
+
+
 
             }catch (Exception e) {
                 e.getMessage();

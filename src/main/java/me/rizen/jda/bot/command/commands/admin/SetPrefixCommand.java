@@ -19,9 +19,10 @@
 package me.rizen.jda.bot.command.commands.admin;
 
 import com.google.cloud.firestore.DocumentReference;
-import me.rizen.jda.bot.misc.Prefixes;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -32,39 +33,42 @@ import java.util.concurrent.ExecutionException;
 import static me.rizen.jda.bot.database.DatabaseFunctions.getDatabase;
 import static me.rizen.jda.bot.functions.MessageFunctions.*;
 import static me.rizen.jda.bot.functions.PermissionFunctions.isAdmin;
+import static me.rizen.jda.bot.misc.Prefixes.PREFIXES;
 
 
 public class SetPrefixCommand implements ICommand {
     @Override
     public void handle(CommandContext ctx) {
-            Member executor = ctx.getMember();
-            List<String> args = ctx.getArgs();
-            TextChannel channel = ctx.getChannel();
-            String guildId = ctx.getGuild().getId();
-            try {
+        final Member executor = ctx.getMember();
+        final List<String> args = ctx.getArgs();
+        final TextChannel channel = ctx.getChannel();
+        final String guildId = ctx.getGuild().getId();
+        final Language language = ctx.getGuildLanguage();
+
+        try {
             if (!isAdmin(executor)) {
-                sendMessage(channel, "You do not have permission to execute this command.");
+                sendMessage(channel, language.MEMBER_MISSING_PERMISSIONS());
                 return;
             }
         if (args.isEmpty()) {
-                sendMessage(channel, "You must supply a prefix.");
+                sendMessage(channel, getHelp(guildId));
                 return;
             }
             String prefix = String.join("", args);
-            sendEmbed(channel, createEmbed(executor).setAuthor("Success!", null, executor.getUser().getEffectiveAvatarUrl())
-                    .setColor(Color.green).addField("Prefix has been updated.", "New prefix: `"+prefix+"`", false));
+            sendEmbed(channel, createEmbed(executor).setAuthor(language.SUCCESS_SUCCESS(), null, executor.getUser().getEffectiveAvatarUrl())
+                    .setColor(Color.green).addField(language.SUCCESS_UPDATE_PREFIX(), language.NEW_PREFIX(), false));
 
                 DocumentReference guildConfig = getDatabase().collection(ctx.getGuild().getId()).document("guildConfig");
                 guildConfig.update("prefix", prefix);
-                Prefixes.PREFIXES.replace(guildId, prefix);
+                PREFIXES.replace(guildId, prefix);
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
     }
 
     @Override
-    public String getHelp() {
-        return null;
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_SETPREFIX();
     }
 
     @Override

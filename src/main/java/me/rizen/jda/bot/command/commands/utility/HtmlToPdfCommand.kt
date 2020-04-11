@@ -18,25 +18,25 @@
 
 package me.rizen.jda.bot.command.commands.utility
 
-import me.rizen.jda.bot.functions.APIFunctions.htmlToPdf
-import me.rizen.jda.bot.functions.MessageFunctions.sendMessage
 import me.rizen.jda.bot.command.CommandContext
 import me.rizen.jda.bot.command.ICommand
-import me.rizen.jda.bot.config.Config
+import me.rizen.jda.bot.functions.APIFunctions.htmlToPdf
+import me.rizen.jda.bot.functions.MessageFunctions.sendMessage
+import me.rizen.jda.bot.misc.GuildLanguage
 
 class HtmlToPdfCommand : ICommand {
     override fun handle(ctx: CommandContext?) {
         val channel = ctx?.channel
         val args = ctx?.args
 
-        if (args?.isEmpty()!!) return sendMessage(channel, help)
+        if (args?.isEmpty()!!) return sendMessage(channel, getHelp(ctx.guild?.id))
         val html = args.subList(0, args.size).toString().replace("[", "").replace("]", "").replace(",", "")
-        if (!html.startsWith("<")) return sendMessage(channel, "You must supply proper HTML!")
+        if (!html.startsWith("<")) return sendMessage(channel, ctx.guildLanguage.IN_PROPER_HTML())
         htmlToPdf(channel, html)
     }
 
-    override fun getHelp(): String {
-        return "Turns HTML \"code\" into PDF.\nUsage: "+Config.getInstance().getString("prefix")+"htmltopdf <HTML>\nExample: "+Config.getInstance().getString("prefix")+"htmltopdf <h1>Hello</h1>"
+    override fun getHelp(guildId: String?): String? {
+        return GuildLanguage.GuildLanguage[guildId]!!.COMMAND_HELP_HTMLTOPDF()
     }
 
     override fun getCategory(): String {

@@ -19,6 +19,7 @@
 package me.rizen.jda.bot.functions;
 
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import java.util.concurrent.TimeUnit;
@@ -55,7 +56,7 @@ public class MessageFunctions {
         return new EmbedBuilder()
                 .setAuthor(member.getUser().getAsTag(), member.getUser().getAvatarUrl())
                 .setColor(randomColour())
-                .setFooter("Provided to you by "+Config.getInstance().getString("ownerTag"));
+                .setFooter(GuildLanguage.GuildLanguage.get(member.getGuild().getId()).PROVIDED_BY_RIZEN());
     }
 
     /**

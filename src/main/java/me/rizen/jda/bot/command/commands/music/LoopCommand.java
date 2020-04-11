@@ -22,6 +22,8 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import me.rizen.jda.bot.music.TrackScheduler;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -42,24 +44,22 @@ public class LoopCommand implements ICommand {
 
         TrackScheduler scheduler = getScheduler(guild);
 
+        final Language language = ctx.getGuildLanguage();
 
         if (!inSameVoiceChannel(guild, member)) {
-            channel.sendMessage("You have to be in the same voice channel as me to use this").queue();
+            sendMessage(channel, language.ERROR_NOT_IN_SAME_VOICE_CHANNEL());
             return;
         }
 
-        String action = scheduler.isRepeating() ? "Stopped" : "Now";
-        boolean newRepeatingState = !scheduler.isRepeating();
+        String action = scheduler.isRepeating() ? language.STOPPED_LOOPING() : language.NOW_LOOPING();
 
-        if (!scheduler.isRepeating()) {
-            scheduler.setRepeating(newRepeatingState);
-            sendMessage(channel, String.format(action + " looping ``%s``", info.title));
-        }
+        scheduler.setRepeating(!scheduler.isRepeating());
+        sendMessage(channel, String.format(action, info.title));
     }
 
     @Override
-    public String getHelp() {
-        return "Toggles the looping state of the currently playing track.\nUsage: "+ Config.getInstance().getString("prefix") +"loop";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_LOOP();
     }
 
 

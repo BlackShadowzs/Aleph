@@ -23,7 +23,7 @@ import java.util.List;
 public interface ICommand {
 
     void handle (CommandContext ctx);
-    String getHelp();
+    String getHelp(String guildId);
     String getName();
     default List<String> getAliases() {
         return List.of();

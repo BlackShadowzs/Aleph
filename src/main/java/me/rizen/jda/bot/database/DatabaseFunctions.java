@@ -35,7 +35,7 @@ public class DatabaseFunctions {
         if (getDatabase().collection(guildId).document("guildConfig").get().get().exists()) {
             return;
         }
-        GuildObject guild = new GuildObject(guildId, serverOwnerName, serverOwnerId, prefix, "1", "none", "Permission.BAN_MEMBERS", "none", "Permission.KICK_MEMBERS");
+        GuildObject guild = new GuildObject(guildId, serverOwnerName, serverOwnerId, prefix, "en_GB" ,"1", "none", "Permission.BAN_MEMBERS", "none", "Permission.KICK_MEMBERS");
             getDatabase().collection(guildId).document("guildConfig").set(guild);
 
     }

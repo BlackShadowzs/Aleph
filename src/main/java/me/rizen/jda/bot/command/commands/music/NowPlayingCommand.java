@@ -27,6 +27,8 @@ import static me.rizen.jda.bot.functions.MiscFunctions.*;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import me.rizen.jda.bot.music.GuildMusicManager;
 import me.rizen.jda.bot.music.PlayerManager;
 import net.dv8tion.jda.api.entities.Guild;
@@ -47,9 +49,9 @@ public class NowPlayingCommand implements ICommand {
         PlayerManager playerManager = PlayerManager.getInstance();
         GuildMusicManager musicManager = playerManager.getGuildMusicManager(ctx.getEvent().getGuild());
         AudioPlayer player = musicManager.player;
-
+        final Language language = ctx.getGuildLanguage();
         if(player.getPlayingTrack() == null) {
-            channel.sendMessage("No song is currently playing!").queue();
+            channel.sendMessage(language.ERROR_NOT_PLAYING()).queue();
             return;
         }
 
@@ -58,7 +60,7 @@ public class NowPlayingCommand implements ICommand {
             sendEmbed(channel, createEmbed(member)
                     .setTitle("Now playing.")
                     .setColor(randomColour())
-                    .setDescription(String.format("**Playing** [%s] (%s)\n%s - `%s`:`%s`",
+                    .setDescription(String.format("**"+language.PLAYING()+"** [%s] (%s)\n%s - `%s`:`%s`",
                             info.title,
                             info.uri,
                             player.isPaused() ? "\u23F8" : "▶",
@@ -75,9 +77,8 @@ public class NowPlayingCommand implements ICommand {
 
 
     @Override
-    public String getHelp() {
-        return "Displays the song that is currently playing\n" +
-                "Usage: " + Config.getInstance().getString("prefix") + getName();
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_NOWPLAYING();
     }
 
     @Override

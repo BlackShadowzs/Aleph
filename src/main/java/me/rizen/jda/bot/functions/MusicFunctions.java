@@ -20,6 +20,8 @@ package me.rizen.jda.bot.functions;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import me.rizen.jda.bot.music.GuildMusicManager;
 import me.rizen.jda.bot.music.PlayerManager;
 import me.rizen.jda.bot.music.TrackScheduler;
@@ -48,6 +50,7 @@ public class MusicFunctions {
         return player.getPlayingTrack() != null;
     }
     public static void forwardSong(Guild guild, TextChannel channel, @Nullable String timeToForward) {
+        final Language language = GuildLanguage.GuildLanguage.get(guild.getId());
         int seconds = 10;
         PlayerManager playerManager = PlayerManager.getInstance();
         GuildMusicManager musicManager = playerManager.getGuildMusicManager(guild);
@@ -62,11 +65,11 @@ public class MusicFunctions {
                     throw new NumberFormatException();
                 }
             } catch(NumberFormatException e) {
-                sendMessage(channel, "This isn't a valid number.");
+                sendMessage(channel, language.ERROR_NAN());
             }
         }
         track.setPosition(track.getPosition() + (1000*seconds)); // Lavaplayer handles values < 0 or > track length
-        sendMessage(channel, "Forwarded the song with "+seconds+" seconds!");
+        sendMessage(channel, language.SUCCESS_FORWARD().replace("REPLACE", String.valueOf(seconds)));
 
     }
 
@@ -119,6 +122,7 @@ public class MusicFunctions {
         return manager.getGuildMusicManager(guild);
     }
     public static void rewindSong(Guild guild, TextChannel channel, @Nullable String timeToForward) {
+        final Language language = GuildLanguage.GuildLanguage.get(guild.getId());
         int seconds = 10;
         PlayerManager playerManager = PlayerManager.getInstance();
         GuildMusicManager musicManager = playerManager.getGuildMusicManager(guild);
@@ -133,11 +137,11 @@ public class MusicFunctions {
                     throw new NumberFormatException();
                 }
             } catch(NumberFormatException e) {
-                sendMessage(channel, "This isn't a valid number.");
+                sendMessage(channel, language.ERROR_NAN());
             }
         }
         track.setPosition(track.getPosition() - (1000*seconds)); // Lavaplayer handles values < 0 or > track length
-        sendMessage(channel, "Rewinded the song with "+seconds+" seconds!");
+        sendMessage(channel, language.SUCCESS_REWIND().replace("REPLACE", String.valueOf(seconds)));
     }
 
     public static PlayerManager getPlayerManager() {

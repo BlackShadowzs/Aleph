@@ -21,6 +21,8 @@ package me.rizen.jda.bot.command.commands.music;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import me.rizen.jda.bot.music.TrackScheduler;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -43,25 +45,20 @@ public class LeaveCommand implements ICommand {
         BlockingQueue<AudioTrack> queue = getQueue(guild);
         TrackScheduler scheduler = getScheduler(guild);
 
+        final Language language = ctx.getGuildLanguage();
 
         if (!botInVoiceChannel(guild)) {
-            sendMessage(channel,"I'm not connected to a voice channel");
+            sendMessage(channel,language.ERROR_BOT_NOT_IN_VOICE_CHANNEL());
             return;
         }
 
         if (!inSameVoiceChannel(guild, member)) {
-            sendMessage(channel, "You have to be in the same voice channel as me to use this");
-            return;
-        }
-
-
-        if (!inSameVoiceChannel(guild, member)) {
-            sendMessage(channel, "You have to be in the same voice channel as me to use this");
+            sendMessage(channel, language.ERROR_NOT_IN_SAME_VOICE_CHANNEL());
             return;
         }
 
         audioManager.closeAudioConnection();
-        sendMessage(channel, "I've left your voice channel!");
+        sendMessage(channel, language.SUCCESS_LEAVE_VOICE_CHANNEL());
         sendSuccess(ctx.getMessage());
 
         scheduler.setRepeating(false);
@@ -69,8 +66,8 @@ public class LeaveCommand implements ICommand {
     }
 
     @Override
-    public String getHelp() {
-        return "Makes the bot leave your channel";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_LEAVE();
     }
 
 

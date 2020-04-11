@@ -21,6 +21,7 @@ package me.rizen.jda.bot.command.commands.admin;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.misc.GuildLanguage;
 
 import java.util.List;
 
@@ -94,13 +95,10 @@ public class SetupPermissionsCommand implements ICommand {
 
     }
 
-
-
-
     @Override
-    public String getHelp() {
-        return "Send a menu that can help you set up permissions.\nUsage: "+ Config.getInstance().getString("prefix")+"setuppermissions";
-    }
+    public String getHelp(String guildId) {
+        return "";
+    }// GuildLanguage.GuildLanguage.get(guildId).}
 
     @Override
     public String getName() {

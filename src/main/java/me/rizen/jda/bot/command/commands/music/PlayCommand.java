@@ -25,6 +25,8 @@ import com.google.api.services.youtube.model.SearchResult;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import me.rizen.jda.bot.music.PlayerManager;
 import me.rizen.jda.bot.music.TrackScheduler;
 import net.dv8tion.jda.api.entities.*;
@@ -73,14 +75,16 @@ public class PlayCommand implements ICommand {
         VoiceChannel voiceChannel = memberVoiceState.getChannel();
         PlayerManager manager = PlayerManager.getInstance();
 
+        final Language language = ctx.getGuildLanguage();
+
         if (!memberInVoiceChannel(member)) {
-            sendMessage(channel, "Please join a voice channel first");
+            sendMessage(channel, language.ERROR_MEMBER_NOT_IN_VOICE_CHANNEL());
             return;
         }
 
         AudioManager audioManager = getAudioManager(guild);
         if (args.isEmpty()) {
-            sendMessage(channel, "Please provide a song name/URL for me to play!");
+            sendMessage(channel, language.MISSING_ARGS());
             return;
         }
 
@@ -90,7 +94,7 @@ public class PlayCommand implements ICommand {
 
 
             if (ytSearched == null) {
-                sendMessage(channel, "Youtube returned no results for this query.");
+                sendMessage(channel, language.ERROR_YOUTUBE_RETURNED_NO_RESULTS());
                 return;
             }
             input = ytSearched;
@@ -140,9 +144,8 @@ public class PlayCommand implements ICommand {
 
 
     @Override
-    public String getHelp() {
-        return "Plays a song\n" +
-                "Usage: " + Config.getInstance().getString("prefix") + "play <Song Name|Song URL>";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_PLAY();
     }
 
     @Override

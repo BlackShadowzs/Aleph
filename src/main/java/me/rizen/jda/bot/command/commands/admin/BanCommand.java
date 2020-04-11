@@ -20,7 +20,8 @@ package me.rizen.jda.bot.command.commands.admin;
 
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
-import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -36,59 +37,60 @@ import static me.rizen.jda.bot.functions.PermissionFunctions.*;
 public class BanCommand implements ICommand {
     @Override
     public void handle(CommandContext ctx) {
-        Member member = ctx.getMember();
-        TextChannel channel = ctx.getChannel();
-        Guild guild = ctx.getGuild();
-        List<Member> mentionedMembers = ctx.getMessage().getMentionedMembers();
-
+        final Guild guild = ctx.getGuild();
+        final Member member = ctx.getMember();
+        final TextChannel channel = ctx.getChannel();
+        final List<Member> mentionedMembers = ctx.getMessage().getMentionedMembers();
+        final Language language = ctx.getGuildLanguage();
 
         try {
             if (!isAdmin(member)) {
-                sendMessage(channel, "You're missing the `BAN_MEMBERS` permission.");
+                sendMessage(channel, language.MEMBER_MISSING_PERMISSIONS());
                 return;
             }
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
         if (mentionedMembers.isEmpty()) {
-            sendMessage(channel, "You must mention a member.");
+            sendMessage(channel, language.MISSING_MENTION());
             return;
         }
 
         Member target = mentionedMembers.get(0);
-        String reason = ctx.getArgs().size() > 0 ? String.join(" ", ctx.getArgs().subList(1, ctx.getArgs().size())) : "No reason provided.";
+        String reason = ctx.getArgs().size() > 0 ? String.join(" ", ctx.getArgs().subList(1, ctx.getArgs().size())) : language.NO_REASON_PROVIDED();
 
         try {
             if (isAdmin(target) && !isGuildOwner(guild, member) && isAdmin(member)) {
-                sendMessage(channel, "You can't ban other admins.");
+                sendMessage(channel, language.EQUAL_PERMISSIONS());
                 return;
             }
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
         if (!botCanInteract(ctx.getSelfMember(), target)) {
-                    sendMessage(channel, "I can't interact with them.");
+                    sendMessage(channel, language.BOT_CANNOT_INTERACT());
                     return;
                 }
                 if (!ctx.getSelfMember().hasPermission(Permission.BAN_MEMBERS)) {
-                    sendMessage(channel, "I am missing the `BAN_MEMBERS` permission.");
+                    sendMessage(channel, language.BOT_MISSING_PERMISSIONS());
                     return;
                 }
                 if (target.equals(member)) {
-                    sendMessage(channel, "Trying to ban yourself? Too bad, you can't.");
+                    sendMessage(channel, language.MEMBER_BAN_SELF());
                 }
-
         try {
             handleBan(channel, member.getUser(), target, reason);
+            sendMessage(channel, language.SUCCESS_BAN());
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public String getHelp() {
-        return "Bans a member of the guild.\nUsage: "+ Config.getInstance().getString("prefix")+"ban <@Member> <Reason>";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_BAN();
     }
+
 
     @Override
     public String getName() {

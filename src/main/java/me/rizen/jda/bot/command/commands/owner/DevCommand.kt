@@ -24,6 +24,7 @@ import me.rizen.jda.bot.config.Config
 
 import me.rizen.jda.bot.functions.MessageFunctions.sendMessage
 import me.rizen.jda.bot.functions.PermissionFunctions.*
+import me.rizen.jda.bot.misc.GuildLanguage
 
 class DevCommand : ICommand {
     override fun handle(ctx: CommandContext) {
@@ -47,14 +48,14 @@ class DevCommand : ICommand {
             removeDev(target.id)
             sendMessage(channel, "Developer list now looks like this:\n```ini\n" + getDevs() + "```")
         } else {
-            sendMessage(channel, help)
+            sendMessage(channel, getHelp(ctx.guild?.id))
         }
 
 
     }
 
-    override fun getHelp(): String {
-        return "Adds member to list of developers.\nUsage: " + Config.getInstance().getString("prefix") + "dev <add|rem> <@Member>\n[Owner Only]"
+    override fun getHelp(guildId: String?): String? {
+        return GuildLanguage.GuildLanguage[guildId]?.COMMAND_HELP_DEV()
     }
 
     override fun getCategory(): String {

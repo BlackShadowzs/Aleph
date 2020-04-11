@@ -22,16 +22,20 @@ import me.rizen.jda.bot.functions.MessageFunctions.sendMessage
 import me.rizen.jda.bot.command.CommandContext
 import me.rizen.jda.bot.command.ICommand
 import me.rizen.jda.bot.config.Config
+import me.rizen.jda.bot.languages.Language
+import me.rizen.jda.bot.languages.en_GB
+import me.rizen.jda.bot.misc.GuildLanguage
 
 class PingCommand : ICommand {
     override fun handle(ctx: CommandContext?) {
+        val pingMsg = GuildLanguage.GuildLanguage[ctx?.guild?.id]?.SUCCESS_PING()
         val channel = ctx?.channel
         val ping = ctx?.jda?.gatewayPing
-        sendMessage(channel, "My ping is: `"+ping+"ms`")
+        sendMessage(channel,  pingMsg +" `"+ping+"ms`")
     }
 
-    override fun getHelp(): String {
-        return "Retrurns the bot's current ping in ms (milliseconds)\nUsage: "+Config.getInstance().getString("prefix")+"ping"
+    override fun getHelp(guildId: String?): String? {
+        return GuildLanguage.GuildLanguage[guildId]!!.COMMAND_HELP_PING()
     }
 
     override fun getName(): String {

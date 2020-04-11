@@ -25,6 +25,8 @@ import static me.rizen.jda.bot.functions.MessageFunctions.sendEmbed;
 import me.rizen.jda.bot.command.CommandContext;
 import me.rizen.jda.bot.command.ICommand;
 import me.rizen.jda.bot.config.Config;
+import me.rizen.jda.bot.languages.Language;
+import me.rizen.jda.bot.misc.GuildLanguage;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -45,23 +47,23 @@ public class QueueCommand implements ICommand {
          TextChannel channel = ctx.getEvent().getChannel();
          Member member = ctx.getMember();
          BlockingQueue<AudioTrack> queue = getQueue(guild);
-
+         final Language language = ctx.getGuildLanguage();
          if (queue.isEmpty()) {
-             channel.sendMessage("The queue is empty").queue();
+             channel.sendMessage(language.QUEUE_IS_EMPTY()).queue();
 
              return;
          }
 
          if (ctx.getArgs().toString().toLowerCase().contains("clear")) {
              queue.clear();
-             channel.sendMessage("The queue has been cleared!").queue();
+             channel.sendMessage(language.QUEUE_WAS_CLEARED()).queue();
              return;
          }
 
          int trackCount = Math.min(queue.size(), 20);
          List<AudioTrack> tracks = new ArrayList<>(queue);
          EmbedBuilder builder = createEmbed(member)
-                 .setTitle("Song Queue (" + queue.size() + " Songs)")
+                 .setTitle(language.SONG_QUEUE().replace("REPLACE", String.valueOf(queue.size())))
                  .setColor(randomColour());
 
          for (int i = 0; i < trackCount; i++) {
@@ -78,9 +80,8 @@ public class QueueCommand implements ICommand {
     }
 
     @Override
-    public String getHelp() {
-        return "Displays the song queue.\n" +
-                "Usage: "+Config.getInstance().getString("prefix")+"queue [clear]";
+    public String getHelp(String guildId) {
+        return GuildLanguage.GuildLanguage.get(guildId).COMMAND_HELP_QUEUE();
     }
 
     @Override
